@@ -1,0 +1,204 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Plateau Riders — Safe, Comfortable Travel{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'pr-green': '#1E7F3B',
+                        'pr-dark': '#145A2A',
+                        'pr-black': '#000000',
+                        'pr-light': '#F5F5F5',
+                    },
+                    fontFamily: {
+                        'display': ['"Playfair Display"', 'Georgia', 'serif'],
+                        'body': ['"DM Sans"', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'DM Sans', system-ui, sans-serif; }
+        .font-display { font-family: 'Playfair Display', Georgia, serif; }
+        .btn-primary {
+            background-color: #1E7F3B;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            display: inline-block;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-primary:hover { background-color: #145A2A; }
+        .btn-secondary {
+            background-color: #000;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: opacity 0.2s;
+            display: inline-block;
+        }
+        .btn-secondary:hover { opacity: 0.8; }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus { border-color: #1E7F3B; box-shadow: 0 0 0 2px rgba(30,127,59,0.15); }
+        .seat-available { background: #1E7F3B; color: white; cursor: pointer; }
+        .seat-booked { background: #000; color: white; cursor: not-allowed; opacity: 0.7; }
+        .seat-selected { background: #F59E0B; color: black; cursor: pointer; }
+        .seat-available:hover { background: #145A2A; }
+        @media print {
+            .no-print { display: none !important; }
+            body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+        }
+        .nav-link { color: #e5e7eb; transition: color 0.2s; }
+        .nav-link:hover { color: #4ade80; }
+        .status-badge {
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-white text-gray-900">
+
+<!-- Navbar -->
+<nav class="bg-black text-white sticky top-0 z-50 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <!-- Logo -->
+            <a href="/" class="flex items-center">
+    <img src="{% static 'img/logo.png' %}" alt="Plateau Riders" class="h-10 w-auto">
+</a>
+
+            <!-- Desktop Nav -->
+            <div class="hidden md:flex items-center gap-6">
+                <a href="/" class="nav-link text-sm font-medium">Home</a>
+                <a href="/search/" class="nav-link text-sm font-medium">Book Trip</a>
+                <a href="/waybill/send/" class="nav-link text-sm font-medium">Send Waybill</a>
+                <a href="/waybill/track/" class="nav-link text-sm font-medium">Track Waybill</a>
+                {% if user.is_authenticated %}
+                    <a href="/booking/my-bookings/" class="nav-link text-sm font-medium">My Bookings</a>
+                    {% if user.is_staff_member %}
+                        <a href="/dashboard/" class="nav-link text-sm font-medium">Dashboard</a>
+                    {% endif %}
+                    <a href="/accounts/logout/" class="btn-primary text-sm py-2 px-4">Logout</a>
+                {% else %}
+                    <a href="/accounts/login/" class="nav-link text-sm font-medium">Login</a>
+                    <a href="/accounts/register/" class="btn-primary text-sm py-2 px-4">Register</a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile menu button -->
+            <button id="mobile-menu-btn" class="md:hidden text-white p-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile Nav -->
+        <div id="mobile-menu" class="hidden md:hidden pb-4 border-t border-gray-700 mt-2 pt-4">
+            <div class="flex flex-col gap-3">
+                <a href="/" class="nav-link text-sm font-medium">Home</a>
+                <a href="/search/" class="nav-link text-sm font-medium">Book Trip</a>
+                <a href="/waybill/send/" class="nav-link text-sm font-medium">Send Waybill</a>
+                <a href="/waybill/track/" class="nav-link text-sm font-medium">Track Waybill</a>
+                {% if user.is_authenticated %}
+                    <a href="/booking/my-bookings/" class="nav-link text-sm font-medium">My Bookings</a>
+                    {% if user.is_staff_member %}
+                        <a href="/dashboard/" class="nav-link text-sm font-medium">Dashboard</a>
+                    {% endif %}
+                    <a href="/accounts/logout/" class="text-red-400 text-sm font-medium">Logout</a>
+                {% else %}
+                    <a href="/accounts/login/" class="nav-link text-sm font-medium">Login</a>
+                    <a href="/accounts/register/" class="btn-primary text-sm text-center">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Messages -->
+{% if messages %}
+<div class="max-w-7xl mx-auto px-4 pt-4">
+    {% for message in messages %}
+    <div class="flex items-center justify-between p-4 mb-3 rounded-lg {% if message.tags == 'error' %}bg-red-50 border border-red-200 text-red-800{% else %}bg-green-50 border border-green-200 text-green-800{% endif %}">
+        <span>{{ message }}</span>
+        <button onclick="this.parentElement.remove()" class="ml-4 text-lg font-bold opacity-60 hover:opacity-100">&times;</button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Main Content -->
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<!-- Footer -->
+<footer class="bg-black text-gray-300 mt-16 py-12 no-print">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+        <div>
+            <div class="mb-4">
+    <img src="{% static 'img/logo.png' %}" alt="Plateau Riders" class="h-8 w-auto">
+</div>
+            <p class="text-sm text-gray-400">Safe, comfortable, and reliable transport across Nigeria.</p>
+        </div>
+        <div>
+            <h4 class="text-white font-semibold mb-3">Quick Links</h4>
+            <div class="flex flex-col gap-2 text-sm">
+                <a href="/search/" class="hover:text-green-400">Book a Trip</a>
+                <a href="/waybill/send/" class="hover:text-green-400">Send a Waybill</a>
+                <a href="/waybill/track/" class="hover:text-green-400">Track Waybill</a>
+            </div>
+        </div>
+        <div>
+            <h4 class="text-white font-semibold mb-3">Popular Routes</h4>
+            <div class="flex flex-col gap-2 text-sm">
+                <span>Jos → Lagos</span>
+                <span>Jos → Abuja</span>
+                <span>Abuja → Lagos</span>
+            </div>
+        </div>
+        <div>
+            <h4 class="text-white font-semibold mb-3">Contact</h4>
+            <div class="flex flex-col gap-2 text-sm">
+                <span>📞 +234 800 000 0000</span>
+                <span>✉️ info@plateauriders.com</span>
+                <span>📍 Jos, Plateau State</span>
+            </div>
+        </div>
+    </div>
+    <div class="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-500">
+        &copy; {{ "now"|date:"Y" }} Plateau Riders. All rights reserved.
+    </div>
+</footer>
+
+<script>
+    document.getElementById('mobile-menu-btn')?.addEventListener('click', () => {
+        document.getElementById('mobile-menu').classList.toggle('hidden');
+    });
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

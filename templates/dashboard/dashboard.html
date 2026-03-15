@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — Plateau Riders{% endblock %}
+
+{% block content %}
+<div class="bg-black text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
+        <div>
+            <h1 class="font-display text-3xl font-bold">Dashboard</h1>
+            <p class="text-gray-400 mt-1">{{ today|date:"l, d F Y" }}</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="/trips/create/" class="btn-primary text-sm py-2">+ New Trip</a>
+            <a href="/waybill/send/" class="btn-secondary text-sm py-2">+ New Waybill</a>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-5 mb-10">
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <div class="text-gray-400 text-xs uppercase tracking-wide mb-2">Total Trips</div>
+            <div class="font-display font-bold text-3xl text-gray-900">{{ total_trips }}</div>
+            <a href="/trips/" class="text-xs text-pr-green hover:underline mt-1 block">View all →</a>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <div class="text-gray-400 text-xs uppercase tracking-wide mb-2">Bookings Today</div>
+            <div class="font-display font-bold text-3xl text-gray-900">{{ bookings_today }}</div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <div class="text-gray-400 text-xs uppercase tracking-wide mb-2">Waybills Today</div>
+            <div class="font-display font-bold text-3xl text-gray-900">{{ waybills_today }}</div>
+            <a href="/waybill/list/" class="text-xs text-pr-green hover:underline mt-1 block">View all →</a>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <div class="text-gray-400 text-xs uppercase tracking-wide mb-2">Revenue (Month)</div>
+            <div class="font-display font-bold text-3xl text-pr-green">₦{{ total_revenue|floatformat:0 }}</div>
+        </div>
+    </div>
+
+    <!-- Secondary Stats -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-5 mb-10">
+        <div class="bg-pr-light border border-gray-200 rounded-xl p-4 text-sm">
+            <div class="text-gray-400 text-xs mb-1">Active Buses</div>
+            <div class="font-bold text-xl">{{ total_buses }}</div>
+        </div>
+        <div class="bg-pr-light border border-gray-200 rounded-xl p-4 text-sm">
+            <div class="text-gray-400 text-xs mb-1">Active Routes</div>
+            <div class="font-bold text-xl">{{ total_routes }}</div>
+        </div>
+        <div class="bg-pr-light border border-gray-200 rounded-xl p-4 text-sm">
+            <div class="text-gray-400 text-xs mb-1">Ticket Revenue</div>
+            <div class="font-bold text-xl text-pr-green">₦{{ monthly_revenue|floatformat:0 }}</div>
+        </div>
+        <div class="bg-pr-light border border-gray-200 rounded-xl p-4 text-sm">
+            <div class="text-gray-400 text-xs mb-1">Waybill Revenue</div>
+            <div class="font-bold text-xl text-pr-green">₦{{ waybill_revenue|floatformat:0 }}</div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+        <a href="/buses/create/" class="bg-white border border-gray-200 hover:border-pr-green rounded-xl p-4 text-center hover:shadow-md transition-all group">
+            <div class="text-2xl mb-2">🚌</div>
+            <div class="text-sm font-semibold group-hover:text-pr-green">Add Bus</div>
+        </a>
+        <a href="/routes/create/" class="bg-white border border-gray-200 hover:border-pr-green rounded-xl p-4 text-center hover:shadow-md transition-all group">
+            <div class="text-2xl mb-2">🗺️</div>
+            <div class="text-sm font-semibold group-hover:text-pr-green">Add Route</div>
+        </a>
+        <a href="/trips/create/" class="bg-white border border-gray-200 hover:border-pr-green rounded-xl p-4 text-center hover:shadow-md transition-all group">
+            <div class="text-2xl mb-2">🕐</div>
+            <div class="text-sm font-semibold group-hover:text-pr-green">Schedule Trip</div>
+        </a>
+        <a href="/waybill/list/" class="bg-white border border-gray-200 hover:border-pr-green rounded-xl p-4 text-center hover:shadow-md transition-all group">
+            <div class="text-2xl mb-2">📦</div>
+            <div class="text-sm font-semibold group-hover:text-pr-green">Manage Waybills</div>
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+        <!-- Upcoming Trips -->
+        <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="font-bold">Upcoming Trips</h3>
+                <a href="/trips/" class="text-xs text-pr-green hover:underline">View all</a>
+            </div>
+            <div class="divide-y divide-gray-100">
+                {% for trip in upcoming_trips %}
+                <div class="px-6 py-4 flex items-center justify-between">
+                    <div>
+                        <div class="font-medium text-sm">{{ trip.route }}</div>
+                        <div class="text-xs text-gray-400">{{ trip.departure_time|date:"d M H:i" }} | {{ trip.bus.plate_number }}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-gray-400">{{ trip.available_seat_count }}/{{ trip.bus.capacity }} seats</div>
+                        <span class="status-badge bg-blue-100 text-blue-700 text-xs">{{ trip.get_status_display }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="px-6 py-8 text-center text-gray-400 text-sm">No upcoming trips</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Waybill Status Summary -->
+        <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="font-bold">Waybill Status</h3>
+                <a href="/waybill/list/" class="text-xs text-pr-green hover:underline">View all</a>
+            </div>
+            <div class="p-6 space-y-3">
+                {% for key, data in waybill_stats.items %}
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">{{ data.label }}</span>
+                    <div class="flex items-center gap-3">
+                        <div class="w-32 bg-gray-100 rounded-full h-2">
+                            {% if data.count > 0 %}
+                            <div class="bg-pr-green h-2 rounded-full" style="width: {{ data.count|floatformat:0 }}0%"></div>
+                            {% endif %}
+                        </div>
+                        <span class="font-bold text-sm w-8 text-right">{{ data.count }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Bookings -->
+    <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm mb-8">
+        <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="font-bold">Recent Bookings</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="text-left px-5 py-3 font-semibold text-gray-500">Reference</th>
+                        <th class="text-left px-5 py-3 font-semibold text-gray-500">Passenger</th>
+                        <th class="text-left px-5 py-3 font-semibold text-gray-500">Route</th>
+                        <th class="text-left px-5 py-3 font-semibold text-gray-500">Seat</th>
+                        <th class="text-left px-5 py-3 font-semibold text-gray-500">Amount</th>
+                        <th class="text-left px-5 py-3 font-semibold text-gray-500">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for b in recent_bookings %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-5 py-3 font-mono text-xs text-pr-green font-bold">
+                            <a href="/booking/ticket/{{ b.booking_reference }}/" class="hover:underline">{{ b.booking_reference }}</a>
+                        </td>
+                        <td class="px-5 py-3 font-medium">{{ b.passenger_name }}</td>
+                        <td class="px-5 py-3 text-gray-500">{{ b.start_stop }} → {{ b.end_stop }}</td>
+                        <td class="px-5 py-3">{{ b.seat.seat_number }}</td>
+                        <td class="px-5 py-3 font-semibold text-pr-green">₦{{ b.amount_paid|floatformat:0 }}</td>
+                        <td class="px-5 py-3">
+                            <span class="status-badge
+                                {% if b.status == 'confirmed' %}bg-green-100 text-green-700
+                                {% elif b.status == 'pending' %}bg-yellow-100 text-yellow-700
+                                {% else %}bg-red-100 text-red-700{% endif %}">
+                                {{ b.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="px-5 py-8 text-center text-gray-400">No bookings yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

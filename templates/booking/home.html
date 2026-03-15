@@ -1,0 +1,406 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Plateau Riders — Book Your Trip Today{% endblock %}
+
+{% block extra_head %}
+<style>
+    body { background: #ffffff; }
+
+    .hero-section {
+        background: linear-gradient(135deg, #000000 0%, #0a1a0f 40%, #0f2d18 70%, #145A2A 100%);
+        position: relative;
+        overflow: hidden;
+        min-height: 92vh;
+        display: flex;
+        align-items: center;
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            radial-gradient(circle at 20% 50%, rgba(30,127,59,0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(30,127,59,0.08) 0%, transparent 40%);
+        pointer-events: none;
+    }
+
+    .road-lines {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: repeating-linear-gradient(
+            90deg,
+            #1E7F3B 0px, #1E7F3B 40px,
+            transparent 40px, transparent 70px
+        );
+        opacity: 0.6;
+        animation: roadMove 2s linear infinite;
+    }
+    @keyframes roadMove {
+        from { background-position: 0 0; }
+        to { background-position: 70px 0; }
+    }
+
+    .bus-float {
+        animation: floatBus 4s ease-in-out infinite;
+        filter: drop-shadow(0 30px 60px rgba(0,0,0,0.5));
+    }
+    @keyframes floatBus {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-12px); }
+    }
+
+    .search-glass {
+        background: rgba(255,255,255,0.97);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 20px;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(30,127,59,0.2);
+        border: 1px solid rgba(30,127,59,0.4);
+        color: #86efac;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        padding: 6px 14px;
+        border-radius: 999px;
+        margin-bottom: 20px;
+    }
+
+    .wave-divider {
+        display: block;
+        width: 100%;
+        overflow: hidden;
+        line-height: 0;
+        margin-top: -2px;
+    }
+
+    .service-card {
+        background: #ffffff;
+        border: 1px solid #f0f0f0;
+        border-radius: 20px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .service-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #1E7F3B, #4ade80);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+        transform-origin: left;
+    }
+    .service-card:hover {
+        border-color: #d1fae5;
+        box-shadow: 0 20px 40px rgba(30,127,59,0.08);
+        transform: translateY(-4px);
+    }
+    .service-card:hover::before { transform: scaleX(1); }
+
+    .route-card {
+        background: #fff;
+        border: 1px solid #efefef;
+        border-radius: 16px;
+        padding: 1.25rem 1.5rem;
+        transition: all 0.25s;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+    .route-card:hover {
+        border-color: #1E7F3B;
+        box-shadow: 0 8px 24px rgba(30,127,59,0.1);
+        transform: translateY(-2px);
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 2rem 1rem;
+    }
+
+    .fade-up {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-up.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="hero-section">
+    <div class="road-lines"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-16">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+            <div class="relative z-10">
+                
+                <h1 class="font-display text-5xl sm:text-6xl lg:text-6xl font-bold text-white leading-[1.1] mb-6">
+                    Travel Within Nigeria<br>
+                    <span class="text-transparent bg-clip-text" style="background-image: linear-gradient(90deg, #4ade80, #1E7F3B);">
+                        In Comfort &
+                    </span><br>
+                    <span class="text-white">Safety</span>
+                </h1>
+                <p class="text-gray-400 text-base sm:text-lg mb-10 max-w-lg leading-relaxed">
+                    Book tickets, send waybills, and track deliveries across Nigeria.
+                    Jos, Abuja, Lagos and beyond, Plateau Riders gets you there.
+                </p>
+
+                <div class="search-glass p-5 sm:p-6">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-1.5 h-5 bg-pr-green rounded-full"></div>
+                        <span class="text-sm font-bold text-gray-700 uppercase tracking-wide">Find Your Trip</span>
+                    </div>
+                    <form action="/search/" method="GET">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">📍</span>
+                                <input type="text" name="origin" placeholder="From"
+                                       class="form-input pl-8 text-sm" list="cities-list" required>
+                            </div>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🏁</span>
+                                <input type="text" name="destination" placeholder="To"
+                                       class="form-input pl-8 text-sm" list="cities-list" required>
+                            </div>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">📅</span>
+                                <input type="date" name="travel_date"
+                                       class="form-input pl-8 text-sm" required>
+                            </div>
+                        </div>
+                        <datalist id="cities-list">
+                            <option value="Jos"><option value="Abuja"><option value="Lokoja">
+                            <option value="Ilorin"><option value="Ibadan"><option value="Lagos">
+                            <option value="Kano"><option value="Port Harcourt"><option value="Kaduna">
+                        </datalist>
+                        <button type="submit" class="btn-primary w-full py-3 text-sm font-bold tracking-wide">
+                            Search Available Trips →
+                        </button>
+                    </form>
+                </div>
+
+                <div class="flex flex-wrap gap-3 mt-5">
+                    <span class="text-xs text-gray-400 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">✅ Photo Tickets</span>
+                    <span class="text-xs text-gray-400 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">💺 Choose Your Seat</span>
+                    <span class="text-xs text-gray-400 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">📦 Waybill Delivery</span>
+                    <span class="text-xs text-gray-400 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">💳 Pay Online</span>
+                </div>
+            </div>
+
+            <div class="relative hidden lg:flex justify-center items-center">
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div class="w-80 h-80 rounded-full opacity-20 blur-3xl"
+                         style="background: radial-gradient(circle, #1E7F3B, transparent)"></div>
+                </div>
+                <svg class="absolute w-full h-full opacity-10" viewBox="0 0 500 400" fill="none">
+                    <ellipse cx="250" cy="350" rx="220" ry="30" stroke="#1E7F3B" stroke-width="1.5" stroke-dasharray="8 6"/>
+                    <ellipse cx="250" cy="350" rx="180" ry="22" stroke="#4ade80" stroke-width="1" stroke-dasharray="4 8"/>
+                </svg>
+                <img src="{% static 'img/riders-car.png' %}"
+                     alt="Plateau Riders Fleet"
+                     class="bus-float relative z-10 w-full max-w-lg object-contain"
+                     style="max-height: 420px;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="wave-divider bg-black">
+    <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="display:block;">
+        <path d="M0,40 C360,80 1080,0 1440,40 L1440,60 L0,60 Z" fill="#ffffff"/>
+    </svg>
+</div>
+
+<section class="bg-white py-10 border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-0 divide-x divide-gray-100">
+            <div class="stat-item fade-up">
+                <div class="text-4xl font-display font-bold text-pr-green">10k+</div>
+                <div class="text-sm text-gray-400 mt-1 font-medium">Passengers Monthly</div>
+            </div>
+            <div class="stat-item fade-up" style="transition-delay:0.1s">
+                <div class="text-4xl font-display font-bold text-pr-green">50+</div>
+                <div class="text-sm text-gray-400 mt-1 font-medium">Routes Covered</div>
+            </div>
+            <div class="stat-item fade-up" style="transition-delay:0.2s">
+                <div class="text-4xl font-display font-bold text-pr-green">98%</div>
+                <div class="text-sm text-gray-400 mt-1 font-medium">On-Time Departures</div>
+            </div>
+            <div class="stat-item fade-up" style="transition-delay:0.3s">
+                <div class="text-4xl font-display font-bold text-pr-green">1988</div>
+                <div class="text-sm text-gray-400 mt-1 font-medium">Established</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="text-center mb-14 fade-up">
+            <div class="inline-block bg-green-50 text-pr-green text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-4">What We Offer</div>
+            <h2 class="font-display text-4xl font-bold text-gray-900 mb-3">Our Services</h2>
+            <p class="text-gray-400 max-w-md mx-auto">Everything you need for seamless travel and waybill delivery across Nigeria</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div class="service-card fade-up text-center">
+                <div class="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                    <span class="text-3xl">🚌</span>
+                </div>
+                <h3 class="font-bold text-xl mb-3 text-gray-900">Book a Trip</h3>
+                <p class="text-gray-500 text-sm leading-relaxed mb-6">Choose your route, pick your seat, travel in comfort. Tickets include your photo for security.</p>
+                <a href="/search/" class="btn-primary text-sm py-2.5 px-6">Book Now →</a>
+            </div>
+            <div class="service-card fade-up text-center" style="transition-delay:0.15s">
+                <div class="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                    <span class="text-3xl">📦</span>
+                </div>
+                <h3 class="font-bold text-xl mb-3 text-gray-900">Send a Waybill</h3>
+                <p class="text-gray-500 text-sm leading-relaxed mb-6">Ship goods across Nigeria safely. Every parcel gets a unique tracking code for peace of mind.</p>
+                <a href="/waybill/send/" class="btn-primary text-sm py-2.5 px-6">Send waybill →</a>
+            </div>
+            <div class="service-card fade-up text-center" style="transition-delay:0.3s">
+                <div class="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                    <span class="text-3xl">📍</span>
+                </div>
+                <h3 class="font-bold text-xl mb-3 text-gray-900">Track Waybill</h3>
+                <p class="text-gray-500 text-sm leading-relaxed mb-6">Enter your tracking code for real-time delivery status, from booking to collection.</p>
+                <a href="/waybill/track/" class="btn-primary text-sm py-2.5 px-6">Track Now →</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if featured_routes %}
+<section class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="flex items-end justify-between mb-12 fade-up">
+            <div>
+                <div class="inline-block bg-green-50 text-pr-green text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-4">Routes</div>
+                <h2 class="font-display text-4xl font-bold text-gray-900">Popular Routes</h2>
+            </div>
+            <a href="/search/" class="text-pr-green text-sm font-semibold hover:underline hidden sm:block">View all →</a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 fade-up">
+            {% for route in featured_routes %}
+            <a href="/search/?origin={{ route.origin }}&destination={{ route.destination }}&travel_date={{ today }}"
+               class="route-card group">
+                <div class="flex items-center gap-3 flex-1">
+                    <div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-pr-green transition-colors">
+                        <span class="text-sm">🚌</span>
+                    </div>
+                    <div>
+                        <div class="font-semibold text-gray-900 text-sm">{{ route.origin }} → {{ route.destination }}</div>
+                        <div class="text-xs text-gray-400">{{ route.stops.count }} stop{{ route.stops.count|pluralize }}</div>
+                    </div>
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <div class="font-bold text-pr-green">₦{{ route.base_price|floatformat:0 }}</div>
+                    <div class="text-xs text-gray-400">from</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div class="fade-up">
+                <div class="inline-block bg-green-50 text-pr-green text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-5">Why Plateau Riders</div>
+                <h2 class="font-display text-4xl font-bold text-gray-900 mb-8">Trusted by Thousands<br>Across Nigeria</h2>
+                <div class="space-y-6">
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0">✅</div>
+                        <div><h4 class="font-semibold mb-1">Photo-Verified Tickets</h4><p class="text-gray-500 text-sm">Your photo is printed on every ticket for enhanced security at boarding.</p></div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0">💺</div>
+                        <div><h4 class="font-semibold mb-1">Choose Your Seat</h4><p class="text-gray-500 text-sm">Visual seat map lets you pick exactly where you want to sit before paying.</p></div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0">🗺️</div>
+                        <div><h4 class="font-semibold mb-1">Flexible Stop Booking</h4><p class="text-gray-500 text-sm">Board or alight at any stop along the route. Pay only for your distance.</p></div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0">💳</div>
+                        <div><h4 class="font-semibold mb-1">Secure Online Payment</h4><p class="text-gray-500 text-sm">Pay via Monnify — cards, bank transfer, and USSD all supported.</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fade-up" style="transition-delay:0.2s">
+                <div class="rounded-2xl overflow-hidden shadow-2xl">
+                    <div class="bg-black px-8 py-6">
+                        <div class="flex items-center gap-3 mb-1">
+                            <span class="text-2xl">📦</span>
+                            <h3 class="font-display text-xl font-bold text-white">Track Your Waybill</h3>
+                        </div>
+                        <p class="text-gray-400 text-sm">Enter tracking code for instant status</p>
+                    </div>
+                    <div class="bg-gray-900 px-8 py-8">
+                        <form action="/waybill/track/" method="GET">
+                            <label class="block text-xs text-gray-400 uppercase tracking-widest mb-2">Tracking Code</label>
+                            <input type="text" name="tracking_code"
+                                   placeholder="e.g. WBXXXXXXXX"
+                                   class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-green-500 mb-4 uppercase font-mono text-sm tracking-widest">
+                            <button type="submit" class="btn-primary w-full py-3 font-bold">Track Now →</button>
+                        </form>
+                        <div class="mt-6 pt-6 border-t border-gray-700 grid grid-cols-3 gap-4 text-center">
+                            <div>
+                                <div class="w-8 h-8 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-2 text-sm">📬</div>
+                                <div class="text-xs text-gray-500">Booked</div>
+                            </div>
+                            <div>
+                                <div class="w-8 h-8 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-2 text-sm">🚌</div>
+                                <div class="text-xs text-gray-500">In Transit</div>
+                            </div>
+                            <div>
+                                <div class="w-8 h-8 bg-green-900 rounded-lg flex items-center justify-center mx-auto mb-2 text-sm">✅</div>
+                                <div class="text-xs text-green-400">Collected</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const today = new Date().toISOString().split('T')[0];
+    document.querySelectorAll('input[type="date"]').forEach(el => {
+        el.min = today;
+        if (!el.value) el.value = today;
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+{% endblock %}

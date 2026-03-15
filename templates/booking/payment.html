@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block title %}Complete Payment — Plateau Riders{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-12">
+    <div class="text-center mb-8">
+        <h1 class="font-display text-3xl font-bold mb-2">Complete Your Booking</h1>
+        <p class="text-gray-500">Secure payment powered by Monnify</p>
+    </div>
+
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden mb-6">
+        <div class="bg-black text-white p-5">
+            <h3 class="font-bold text-lg">Booking Summary</h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-2 gap-4 text-sm mb-6">
+                <div>
+                    <span class="text-gray-400 block">Reference</span>
+                    <strong class="font-mono">{{ booking.booking_reference }}</strong>
+                </div>
+                <div>
+                    <span class="text-gray-400 block">Passenger</span>
+                    <strong>{{ booking.passenger_name }}</strong>
+                </div>
+                <div>
+                    <span class="text-gray-400 block">Route</span>
+                    <strong>{{ booking.start_stop }} → {{ booking.end_stop }}</strong>
+                </div>
+                <div>
+                    <span class="text-gray-400 block">Seat</span>
+                    <strong>{{ booking.seat.seat_number }}</strong>
+                </div>
+                <div>
+                    <span class="text-gray-400 block">Departure</span>
+                    <strong>{{ booking.trip.departure_time|date:"D, d M Y H:i" }}</strong>
+                </div>
+                <div>
+                    <span class="text-gray-400 block">Bus</span>
+                    <strong>{{ booking.trip.bus.plate_number }}</strong>
+                </div>
+            </div>
+            <div class="border-t pt-4 flex items-center justify-between">
+                <span class="text-gray-600">Amount to Pay</span>
+                <span class="font-bold text-3xl text-pr-green">₦{{ booking.amount_paid|floatformat:0 }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Button -->
+    <button id="pay-btn" class="btn-primary w-full py-5 text-lg mb-4">
+        💳 Pay ₦{{ booking.amount_paid|floatformat:0 }} with Monnify
+    </button>
+
+    <div class="text-center text-xs text-gray-400 mb-6">
+        🔒 Your payment is secured by 256-bit SSL encryption
+        <div class="mt-2">Powered by <strong>Monnify</strong> — Bank transfer, Cards & USSD accepted</div>
+    </div>
+
+    <!-- Demo confirm (for dev/testing without live Monnify) -->
+    <div class="border border-dashed border-gray-300 rounded-xl p-4 text-center">
+        <p class="text-xs text-gray-400 mb-3">For testing only (dev mode):</p>
+        <button id="dev-confirm-btn" class="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg text-sm hover:bg-gray-200">
+            ✅ Simulate Successful Payment
+        </button>
+    </div>
+</div>
+
+<!-- Monnify Payment Script -->
+<script src="https://sdk.monnify.com/plugin/monnify.js"></script>
+<script>
+const bookingRef = "{{ booking.booking_reference }}";
+const amount = {{ booking.amount_paid }};
+const customerName = "{{ booking.passenger_name }}";
+const customerEmail = "{{ booking.passenger.email|default:'passenger@plateauriders.com' }}";
+const apiKey = "{{ monnify_api_key }}";
+const contractCode = "{{ monnify_contract_code }}";
+
+document.getElementById('pay-btn').addEventListener('click', () => {
+    MonnifySDK.initialize({
+        amount: amount,
+        currency: "NGN",
+        reference: bookingRef + "_" + Date.now(),
+        customerFullName: customerName,
+        customerEmail: customerEmail,
+        apiKey: apiKey,
+        contractCode: contractCode,
+        paymentDescription: `Plateau Riders Ticket - ${bookingRef}`,
+        metadata: { booking_reference: bookingRef },
+        onLoadStart: () => console.log("Loading..."),
+        onLoadComplete: () => console.log("Loaded."),
+        onComplete: function(response) {
+            if (response.paymentStatus === 'PAID') {
+                fetch('/booking/verify-payment/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                    body: JSON.stringify({
+                        booking_reference: bookingRef,
+                        transactionReference: response.transactionReference,
+                    })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) window.location.href = data.redirect;
+                });
+            }
+        },
+        onClose: function(data) { console.log('Payment closed', data); }
+    });
+});
+
+// Dev simulate payment
+document.getElementById('dev-confirm-btn').addEventListener('click', () => {
+    if (!confirm('Simulate a successful payment? (Dev mode only)')) return;
+    fetch('/booking/verify-payment/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+        body: JSON.stringify({ booking_reference: bookingRef, transactionReference: 'DEV_' + Date.now() })
+    })
+    .then(r => r.json())
+    .then(data => { if (data.success) window.location.href = data.redirect; });
+});
+
+function getCookie(name) {
+    let v = null;
+    document.cookie.split(';').forEach(c => {
+        const [k, val] = c.trim().split('=');
+        if (k === name) v = decodeURIComponent(val);
+    });
+    return v;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}Send a Parcel — Plateau Riders{% endblock %}
+{% block content %}
+<div class="bg-black text-white py-10">
+    <div class="max-w-7xl mx-auto px-4">
+        <h1 class="font-display text-3xl font-bold">Send a Parcel</h1>
+        <p class="text-gray-400 mt-1">Reliable parcel delivery across Nigeria. Fill in the form below to create a waybill.</p>
+    </div>
+</div>
+
+<div class="max-w-4xl mx-auto px-4 py-10">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Form -->
+        <div class="lg:col-span-2">
+            <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+                <form method="POST">
+                    {% csrf_token %}
+                    <!-- Sender -->
+                    <h3 class="font-bold text-lg mb-5 flex items-center gap-2">
+                        <span class="w-7 h-7 bg-pr-green text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                        Sender Details
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Sender Name *</label>
+                            {{ form.sender_name }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Sender Phone *</label>
+                            {{ form.sender_phone }}
+                        </div>
+                    </div>
+
+                    <!-- Receiver -->
+                    <h3 class="font-bold text-lg mb-5 flex items-center gap-2">
+                        <span class="w-7 h-7 bg-pr-green text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                        Receiver Details
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Receiver Name *</label>
+                            {{ form.receiver_name }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Receiver Phone *</label>
+                            {{ form.receiver_phone }}
+                        </div>
+                    </div>
+
+                    <!-- Parcel -->
+                    <h3 class="font-bold text-lg mb-5 flex items-center gap-2">
+                        <span class="w-7 h-7 bg-pr-green text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                        Parcel Details
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Origin *</label>
+                            {{ form.origin }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Destination *</label>
+                            {{ form.destination }}
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Item Description *</label>
+                            {{ form.description }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Weight (kg) *</label>
+                            {{ form.weight }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">{{ form.trip.label }}</label>
+                            {{ form.trip }}
+                        </div>
+                    </div>
+
+                    <!-- Price Preview -->
+                    <div class="bg-pr-light rounded-xl p-5 mb-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-gray-600">Base fee</span>
+                            <span class="font-semibold">₦500</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-gray-600">Per kg (₦200/kg)</span>
+                            <span class="font-semibold" id="per-kg-display">₦0</span>
+                        </div>
+                        <div class="border-t border-gray-300 pt-3 flex justify-between items-center">
+                            <span class="font-bold">Estimated Total</span>
+                            <span class="font-bold text-pr-green text-xl" id="total-display">₦500</span>
+                        </div>
+                    </div>
+
+                    {% if form.errors %}
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-red-700 text-sm">
+                        Please correct the errors below: {{ form.errors }}
+                    </div>
+                    {% endif %}
+
+                    <button type="submit" class="btn-primary w-full py-4 text-base">
+                        📦 Create Waybill & Get Tracking Code
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Info Sidebar -->
+        <div class="space-y-5">
+            <div class="bg-white border border-gray-200 rounded-2xl p-6">
+                <h4 class="font-bold mb-4">How It Works</h4>
+                <ol class="space-y-3 text-sm text-gray-600">
+                    <li class="flex gap-3"><span class="text-pr-green font-bold">1.</span> Fill in sender & receiver details</li>
+                    <li class="flex gap-3"><span class="text-pr-green font-bold">2.</span> Describe your parcel and weight</li>
+                    <li class="flex gap-3"><span class="text-pr-green font-bold">3.</span> Submit to get your tracking code</li>
+                    <li class="flex gap-3"><span class="text-pr-green font-bold">4.</span> Drop off parcel at our terminal</li>
+                    <li class="flex gap-3"><span class="text-pr-green font-bold">5.</span> Receiver collects at destination</li>
+                </ol>
+            </div>
+            <div class="bg-black text-white rounded-2xl p-6">
+                <h4 class="font-bold mb-2">Track a Parcel?</h4>
+                <p class="text-gray-400 text-sm mb-4">Already have a tracking code? Check delivery status now.</p>
+                <a href="/waybill/track/" class="btn-primary block text-center py-2 text-sm">Track Now →</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('id_weight').addEventListener('input', function() {
+    const weight = parseFloat(this.value) || 0;
+    const base = 500;
+    const perKg = weight * 200;
+    const total = base + perKg;
+    document.getElementById('per-kg-display').textContent = '₦' + perKg.toLocaleString();
+    document.getElementById('total-display').textContent = '₦' + total.toLocaleString();
+});
+</script>
+{% endblock %}

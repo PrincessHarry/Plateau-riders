@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+{% block title %}Select Your Seat — Plateau Riders{% endblock %}
+
+{% block extra_head %}
+<style>
+.seat-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid transparent;
+}
+.seat-btn.available {
+    background: #1E7F3B;
+    color: white;
+    cursor: pointer;
+}
+.seat-btn.available:hover {
+    background: #145A2A;
+    transform: scale(1.1);
+}
+.seat-btn.booked {
+    background: #222;
+    color: #666;
+    cursor: not-allowed;
+}
+.seat-btn.selected {
+    background: #F59E0B;
+    color: black;
+    border-color: #D97706;
+    transform: scale(1.1);
+}
+.driver-seat {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: #374151;
+    color: #9CA3AF;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-black text-white py-8 no-print">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="flex items-center gap-3 mb-2">
+            <a href="javascript:history.back()" class="text-gray-400 hover:text-white text-sm">← Back</a>
+        </div>
+        <h1 class="font-display text-3xl font-bold">Select Your Seat</h1>
+        <p class="text-gray-400 mt-1">{{ trip.route.origin }} → {{ trip.route.destination }} | {{ trip.departure_time|date:"D, d M Y H:i" }}</p>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <form method="POST" action="/booking/confirm/{{ trip.id }}/" enctype="multipart/form-data" id="booking-form">
+        {% csrf_token %}
+        <input type="hidden" name="seat_id" id="seat_id_input" value="">
+        <input type="hidden" name="origin" value="{{ origin }}">
+        <input type="hidden" name="destination" value="{{ destination }}">
+        <input type="hidden" name="price" value="{{ price }}">
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+            <!-- Left: Seat Map + Legend -->
+            <div>
+                <!-- Trip Summary Card -->
+                <div class="bg-white border border-gray-200 rounded-2xl p-5 mb-6 shadow-sm">
+                    <h3 class="font-bold text-lg mb-4">Trip Details</h3>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-400 block">From</span>
+                            <strong>{{ origin }}</strong>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 block">To</span>
+                            <strong>{{ destination }}</strong>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 block">Departure</span>
+                            <strong>{{ trip.departure_time|date:"D, d M Y H:i" }}</strong>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 block">Price</span>
+                            <strong class="text-pr-green text-lg">₦{{ price|floatformat:0 }}</strong>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 block">Bus</span>
+                            <strong>{{ bus.plate_number }}</strong>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 block">Selected Seat</span>
+                            <strong id="selected-seat-display" class="text-amber-600">None selected</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="flex gap-4 mb-5 flex-wrap">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 seat-btn available">1</div>
+                        <span class="text-sm text-gray-600">Available</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 seat-btn booked">X</div>
+                        <span class="text-sm text-gray-600">Booked</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 seat-btn selected">✓</div>
+                        <span class="text-sm text-gray-600">Selected</span>
+                    </div>
+                </div>
+
+                <!-- Bus Seat Map -->
+                <div class="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden">
+                    <!-- Bus Top Bar -->
+                    <div class="bg-black text-white px-6 py-3 flex items-center justify-between">
+                        <span class="font-bold text-sm">🚌 {{ bus.plate_number }}</span>
+                        <span class="text-xs text-gray-400">{{ bus.capacity }} seats total</span>
+                    </div>
+
+                    <!-- Bus Interior -->
+                    <div class="p-6 bg-gray-50">
+                        <!-- Driver Area -->
+                        <div class="flex justify-between items-center mb-6 pb-4 border-b border-dashed border-gray-300">
+                            <div class="flex items-center gap-3">
+                                <div class="driver-seat">🚗</div>
+                                <span class="text-sm text-gray-500 font-medium">Driver</span>
+                            </div>
+                            <div class="text-xs text-gray-400">FRONT</div>
+                        </div>
+
+                        <!-- Seat Grid -->
+                        <div class="space-y-3" id="seat-map">
+                            {% for seat in seats %}
+                            {% if forloop.counter0|divisibleby:2 %}
+                            <div class="flex gap-3 items-center">
+                            {% endif %}
+
+                            <button type="button"
+                                    class="seat-btn {% if seat.id in booked_seat_ids %}booked{% else %}available{% endif %}"
+                                    data-seat-id="{{ seat.id }}"
+                                    data-seat-number="{{ seat.seat_number }}"
+                                    {% if seat.id in booked_seat_ids %}disabled{% endif %}>
+                                {{ seat.seat_number }}
+                            </button>
+
+                            {% if forloop.counter|divisibleby:2 or forloop.last %}
+                            <div class="w-8 h-8 flex items-center justify-center">
+                                <div class="w-1 h-full bg-gray-200"></div>
+                            </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <!-- Back -->
+                        <div class="mt-6 pt-4 border-t border-dashed border-gray-300 text-center text-xs text-gray-400">
+                            REAR
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Passenger Details Form -->
+            <div>
+                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                    <h3 class="font-bold text-xl mb-6">Passenger Details</h3>
+
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
+                            {{ form.passenger_name }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
+                            {{ form.phone }}
+                        </div>
+
+                        <!-- Photo Upload -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Passenger Photo * <span class="text-gray-400 font-normal">(Required for ticket)</span>
+                            </label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-5 text-center hover:border-pr-green transition-colors">
+                                <div id="photo-preview-container" class="hidden mb-4">
+                                    <img id="photo-preview" src="" alt="Preview" class="w-24 h-24 rounded-full object-cover mx-auto border-4 border-pr-green">
+                                </div>
+                                <div id="photo-placeholder" class="mb-3">
+                                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                        <span class="text-3xl">📷</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500">Upload a clear passport-style photo</p>
+                                    <p class="text-xs text-gray-400">JPG, PNG. Max 5MB</p>
+                                </div>
+                                {{ form.passenger_photo }}
+
+                                <!-- Camera Capture Button -->
+                                <div class="mt-3">
+                                    <button type="button" id="camera-btn"
+                                            class="text-xs text-pr-green hover:text-pr-dark font-semibold underline">
+                                        📸 Take Photo with Camera
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Camera UI -->
+                            <div id="camera-container" class="hidden mt-4">
+                                <video id="camera-video" autoplay playsinline class="w-full rounded-xl mb-3 max-h-48"></video>
+                                <div class="flex gap-3">
+                                    <button type="button" id="capture-btn" class="btn-primary flex-1 py-2">Capture</button>
+                                    <button type="button" id="close-camera-btn" class="btn-secondary flex-1 py-2">Cancel</button>
+                                </div>
+                                <canvas id="photo-canvas" class="hidden"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="mt-8">
+                        <div id="seat-warning" class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800 mb-4 hidden">
+                            ⚠️ Please select a seat before proceeding.
+                        </div>
+                        <div class="flex items-center justify-between mb-4 p-4 bg-gray-50 rounded-xl">
+                            <span class="text-gray-600">Total Amount</span>
+                            <span class="font-bold text-2xl text-pr-green">₦{{ price|floatformat:0 }}</span>
+                        </div>
+                        <button type="button" id="proceed-btn" class="btn-primary w-full py-4 text-base">
+                            Proceed to Payment →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedSeatId = null;
+let selectedSeatNumber = null;
+let stream = null;
+
+// Seat Selection
+document.querySelectorAll('.seat-btn.available').forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Deselect previous
+        document.querySelectorAll('.seat-btn.selected').forEach(s => {
+            s.classList.remove('selected');
+            s.classList.add('available');
+        });
+        // Select this
+        btn.classList.remove('available');
+        btn.classList.add('selected');
+        selectedSeatId = btn.dataset.seatId;
+        selectedSeatNumber = btn.dataset.seatNumber;
+        document.getElementById('seat_id_input').value = selectedSeatId;
+        document.getElementById('selected-seat-display').textContent = `Seat ${selectedSeatNumber}`;
+        document.getElementById('seat-warning').classList.add('hidden');
+    });
+});
+
+// Photo preview
+document.getElementById('id_passenger_photo').addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('photo-preview').src = e.target.result;
+            document.getElementById('photo-preview-container').classList.remove('hidden');
+            document.getElementById('photo-placeholder').classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Camera
+document.getElementById('camera-btn').addEventListener('click', async () => {
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+        document.getElementById('camera-video').srcObject = stream;
+        document.getElementById('camera-container').classList.remove('hidden');
+        document.getElementById('camera-btn').classList.add('hidden');
+    } catch(e) {
+        alert('Could not access camera. Please upload a photo instead.');
+    }
+});
+
+document.getElementById('capture-btn').addEventListener('click', () => {
+    const video = document.getElementById('camera-video');
+    const canvas = document.getElementById('photo-canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    canvas.toBlob(blob => {
+        const file = new File([blob], 'photo.jpg', { type: 'image/jpeg' });
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        document.getElementById('id_passenger_photo').files = dt.files;
+        document.getElementById('photo-preview').src = URL.createObjectURL(blob);
+        document.getElementById('photo-preview-container').classList.remove('hidden');
+        document.getElementById('photo-placeholder').classList.add('hidden');
+    }, 'image/jpeg', 0.9);
+    closeCamera();
+});
+
+document.getElementById('close-camera-btn').addEventListener('click', closeCamera);
+
+function closeCamera() {
+    if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+    document.getElementById('camera-container').classList.add('hidden');
+    document.getElementById('camera-btn').classList.remove('hidden');
+}
+
+// Submit validation
+document.getElementById('proceed-btn').addEventListener('click', () => {
+    if (!selectedSeatId) {
+        document.getElementById('seat-warning').classList.remove('hidden');
+        document.querySelector('#seat-map').scrollIntoView({ behavior: 'smooth' });
+        return;
+    }
+    const name = document.getElementById('id_passenger_name').value.trim();
+    const phone = document.getElementById('id_phone').value.trim();
+    if (!name || !phone) {
+        alert('Please fill in all passenger details.');
+        return;
+    }
+    document.getElementById('booking-form').submit();
+});
+</script>
+{% endblock %}

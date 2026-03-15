@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}Track Parcel — Plateau Riders{% endblock %}
+{% block content %}
+<div class="bg-black text-white py-10">
+    <div class="max-w-7xl mx-auto px-4">
+        <h1 class="font-display text-3xl font-bold">Track Your Parcel</h1>
+        <p class="text-gray-400 mt-1">Enter your tracking code to see real-time delivery status</p>
+    </div>
+</div>
+
+<div class="max-w-3xl mx-auto px-4 py-10">
+    <!-- Search Form -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8">
+        <form action="/waybill/track/" method="GET" class="flex gap-3">
+            <input type="text" name="tracking_code"
+                   value="{{ request.GET.tracking_code }}"
+                   placeholder="Enter tracking code (e.g. WBXXXXXXXX)"
+                   class="form-input flex-1 uppercase"
+                   style="text-transform: uppercase">
+            <button type="submit" class="btn-primary px-6">Track</button>
+        </form>
+    </div>
+
+    {% if error %}
+    <div class="bg-red-50 border border-red-200 rounded-xl p-5 text-red-800 mb-8">
+        <strong>Not Found:</strong> {{ error }}
+    </div>
+    {% endif %}
+
+    {% if waybill %}
+    <!-- Waybill Details -->
+    <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+        <!-- Header -->
+        <div class="bg-black text-white p-6 flex items-center justify-between">
+            <div>
+                <div class="text-xs text-gray-400">TRACKING CODE</div>
+                <div class="font-mono font-bold text-xl text-yellow-400">{{ waybill.tracking_code }}</div>
+            </div>
+            <span class="status-badge text-sm
+                {% if waybill.status == 'collected' %}bg-green-600 text-white
+                {% elif waybill.status == 'arrived' %}bg-blue-500 text-white
+                {% elif waybill.status == 'in_transit' %}bg-yellow-500 text-black
+                {% elif waybill.status == 'loaded' %}bg-purple-500 text-white
+                {% else %}bg-gray-500 text-white{% endif %}">
+                {{ waybill.get_status_display }}
+            </span>
+        </div>
+
+        <!-- Parties -->
+        <div class="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
+            <div class="p-5">
+                <div class="text-xs text-gray-400 uppercase mb-1">Sender</div>
+                <div class="font-semibold">{{ waybill.sender_name }}</div>
+                <div class="text-sm text-gray-500">{{ waybill.sender_phone }}</div>
+                <div class="text-sm text-pr-green font-medium mt-1">📍 {{ waybill.origin }}</div>
+            </div>
+            <div class="p-5">
+                <div class="text-xs text-gray-400 uppercase mb-1">Receiver</div>
+                <div class="font-semibold">{{ waybill.receiver_name }}</div>
+                <div class="text-sm text-gray-500">{{ waybill.receiver_phone }}</div>
+                <div class="text-sm text-pr-green font-medium mt-1">📍 {{ waybill.destination }}</div>
+            </div>
+        </div>
+
+        <!-- Parcel Info -->
+        <div class="p-5 border-b border-gray-100 grid grid-cols-3 gap-4 text-sm">
+            <div>
+                <span class="text-gray-400 block">Description</span>
+                <span class="font-semibold">{{ waybill.description }}</span>
+            </div>
+            <div>
+                <span class="text-gray-400 block">Weight</span>
+                <span class="font-semibold">{{ waybill.weight }} kg</span>
+            </div>
+            <div>
+                <span class="text-gray-400 block">Amount</span>
+                <span class="font-bold text-pr-green">₦{{ waybill.amount|floatformat:0 }}</span>
+            </div>
+        </div>
+
+        <!-- Status Timeline -->
+        <div class="p-6">
+            <h4 class="font-bold mb-5">Tracking Timeline</h4>
+            {% with statuses="booked,loaded,in_transit,arrived,collected" %}
+            {% with status_list=statuses.split %}
+
+            <div class="relative">
+                <!-- Status Steps -->
+                <div class="flex justify-between mb-3 relative">
+                    <div class="absolute top-4 left-0 right-0 h-1 bg-gray-200 z-0">
+                        {% with history=waybill.status_history.all %}
+                        <div class="h-1 bg-pr-green" style="width:
+                            {% if waybill.status == 'booked' %}0%
+                            {% elif waybill.status == 'loaded' %}25%
+                            {% elif waybill.status == 'in_transit' %}50%
+                            {% elif waybill.status == 'arrived' %}75%
+                            {% elif waybill.status == 'collected' %}100%
+                            {% endif %}"></div>
+                        {% endwith %}
+                    </div>
+
+                    {% for s in "booked,loaded,in_transit,arrived,collected"|split:"," %}
+                    <div class="flex flex-col items-center relative z-10">
+                        <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold
+                            {% if waybill.status == s %}border-pr-green bg-pr-green text-white
+                            {% elif waybill.status == 'loaded' and s == 'booked' %}border-pr-green bg-pr-green text-white
+                            {% elif waybill.status == 'in_transit' and s in 'booked,loaded' %}border-pr-green bg-pr-green text-white
+                            {% elif waybill.status == 'arrived' and s in 'booked,loaded,in_transit' %}border-pr-green bg-pr-green text-white
+                            {% elif waybill.status == 'collected' %}border-pr-green bg-pr-green text-white
+                            {% else %}border-gray-300 bg-white text-gray-400{% endif %}">
+                            ✓
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1 text-center capitalize">{{ s|replace:"_":" " }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% endwith %}
+            {% endwith %}
+
+            <!-- History Log -->
+            {% if waybill.status_history.all %}
+            <div class="mt-8">
+                <h5 class="font-semibold text-sm mb-3 text-gray-600">Update History</h5>
+                <div class="space-y-3">
+                    {% for h in waybill.status_history.all %}
+                    <div class="flex gap-3 text-sm">
+                        <div class="text-gray-400 whitespace-nowrap">{{ h.updated_at|date:"d M H:i" }}</div>
+                        <div>
+                            <span class="status-badge bg-gray-100 text-gray-700">{{ h.get_status_display }}</span>
+                            {% if h.note %}<span class="text-gray-500 ml-2">— {{ h.note }}</span>{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not waybill and not error %}
+    <!-- Empty state -->
+    <div class="text-center py-12 text-gray-400">
+        <div class="text-5xl mb-4">📦</div>
+        <p>Enter a tracking code above to check your parcel status.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

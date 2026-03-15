@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Login — Plateau Riders{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-pr-light flex items-center justify-center py-12 px-4">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div class="w-10 h-10 bg-pr-green rounded-full flex items-center justify-center font-display font-bold text-white">PR</div>
+            </div>
+            <h1 class="font-display text-3xl font-bold">Welcome Back</h1>
+            <p class="text-gray-500 mt-1">Log in to manage your bookings</p>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+            <form method="POST">
+                {% csrf_token %}
+                {% if form.errors %}
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-5 text-red-700 text-sm">
+                    Invalid username or password. Please try again.
+                </div>
+                {% endif %}
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Username</label>
+                        {{ form.username }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+                        {{ form.password }}
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary w-full mt-6 py-4">Log In →</button>
+            </form>
+            <div class="text-center mt-5 text-sm text-gray-500">
+                Don't have an account?
+                <a href="/accounts/register/" class="text-pr-green font-semibold hover:underline">Register here</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

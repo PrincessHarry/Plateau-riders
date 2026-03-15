@@ -1,0 +1,109 @@
+# =============================================================
+# PLATEAU RIDERS — .gitignore
+# =============================================================
+
+
+# -------------------------------------------------------------
+# SECRET FILES — Never commit these
+# -------------------------------------------------------------
+.env
+*.pem
+*.key
+*.cert
+secrets.json
+
+
+# -------------------------------------------------------------
+# PYTHON
+# -------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+MANIFEST
+
+
+# -------------------------------------------------------------
+# VIRTUAL ENVIRONMENTS
+# -------------------------------------------------------------
+venv/
+ridersenv/
+env/
+ENV/
+.venv/
+.ridersenv/
+.env/
+virtualenv/
+
+
+# -------------------------------------------------------------
+# DJANGO
+# -------------------------------------------------------------
+
+# Static files collected for production (generated, not source)
+staticfiles/
+
+# Media uploads are user-generated — keep locally, back up separately
+# media/ is NOT ignored so the folder structure is preserved,
+# but the actual uploaded files should be excluded:
+media/**
+!media/.gitkeep
+
+# Local settings override (if you use one)
+plateau_riders/local_settings.py
+
+
+# -------------------------------------------------------------
+# DATABASE
+# NOTE: db.sqlite3 is intentionally NOT ignored.
+# We keep it in the repo so sample/dev data is preserved.
+# -------------------------------------------------------------
+# db.sqlite3   <-- deliberately left out of gitignore
+
+
+# -------------------------------------------------------------
+# EDITORS & IDEs
+# -------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+
+# -------------------------------------------------------------
+# TESTING & COVERAGE
+# -------------------------------------------------------------
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+
+# -------------------------------------------------------------
+# LOGS
+# -------------------------------------------------------------
+*.log
+logs/
+
+
+# -------------------------------------------------------------
+# OS FILES
+# -------------------------------------------------------------
+.DS_Store
+ehthumbs.db
+Desktop.ini

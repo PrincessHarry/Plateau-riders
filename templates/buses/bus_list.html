@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Buses — Plateau Riders{% endblock %}
+{% block content %}
+<div class="bg-black text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
+        <div>
+            <h1 class="font-display text-3xl font-bold">Buses</h1>
+            <p class="text-gray-400 mt-1">Manage your fleet</p>
+        </div>
+        <a href="/buses/create/" class="btn-primary">+ Add Bus</a>
+    </div>
+</div>
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {% for bus in buses %}
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-black rounded-xl flex items-center justify-center text-2xl">🚌</div>
+                <div>
+                    <div class="font-bold text-lg">{{ bus.plate_number }}</div>
+                    <div class="text-xs text-gray-500">{{ bus.get_bus_type_display }}</div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                    <span class="text-gray-400 block">Capacity</span>
+                    <strong>{{ bus.capacity }} seats</strong>
+                </div>
+                <div>
+                    <span class="text-gray-400 block">Status</span>
+                    <span class="{% if bus.is_active %}text-green-600{% else %}text-red-500{% endif %} font-semibold">
+                        {% if bus.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-3 text-center py-20 text-gray-400">
+            <p class="text-5xl mb-4">🚌</p>
+            <p>No buses added yet. <a href="/buses/create/" class="text-pr-green hover:underline">Add your first bus</a></p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

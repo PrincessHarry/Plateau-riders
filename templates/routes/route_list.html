@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Routes — Plateau Riders{% endblock %}
+{% block content %}
+<div class="bg-black text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
+        <div>
+            <h1 class="font-display text-3xl font-bold">Routes</h1>
+            <p class="text-gray-400 mt-1">Manage bus routes and stops</p>
+        </div>
+        <a href="/routes/create/" class="btn-primary">+ Add Route</a>
+    </div>
+</div>
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="space-y-4">
+        {% for route in routes %}
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="font-bold text-xl">{{ route.origin }} → {{ route.destination }}</h3>
+                    <div class="text-sm text-gray-500 mt-1">Base price: ₦{{ route.base_price|floatformat:0 }}</div>
+                </div>
+                <div class="flex gap-3">
+                    <a href="/routes/{{ route.id }}/stops/" class="text-pr-green text-sm font-semibold hover:underline">Manage Stops</a>
+                    <span class="status-badge {% if route.is_active %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                        {% if route.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </div>
+            </div>
+            {% if route.stops.all %}
+            <div class="flex items-center gap-2 flex-wrap text-sm text-gray-600">
+                <span class="font-semibold text-pr-green">{{ route.origin }}</span>
+                {% for stop in route.get_stops_ordered %}
+                <span class="text-gray-400">→</span>
+                <span>{{ stop.location }}</span>
+                {% endfor %}
+                <span class="text-gray-400">→</span>
+                <span class="font-semibold text-pr-green">{{ route.destination }}</span>
+            </div>
+            {% else %}
+            <p class="text-xs text-gray-400">No intermediate stops added yet. <a href="/routes/{{ route.id }}/stops/" class="text-pr-green hover:underline">Add stops</a></p>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="text-center py-20 text-gray-400">
+            <p class="text-5xl mb-4">🗺️</p>
+            <p>No routes created yet. <a href="/routes/create/" class="text-pr-green hover:underline">Add your first route</a></p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

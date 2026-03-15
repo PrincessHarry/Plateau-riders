@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}My Bookings — Plateau Riders{% endblock %}
+{% block content %}
+<div class="bg-black text-white py-10">
+    <div class="max-w-7xl mx-auto px-4">
+        <h1 class="font-display text-3xl font-bold">My Bookings</h1>
+        <p class="text-gray-400 mt-1">Your booking history and trip records</p>
+    </div>
+</div>
+<div class="max-w-7xl mx-auto px-4 py-10">
+    {% if bookings %}
+    <div class="space-y-4">
+        {% for booking in bookings %}
+        <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
+            <div class="grid grid-cols-1 sm:grid-cols-5 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
+                <div class="p-5 sm:col-span-2">
+                    <div class="text-xs text-gray-400 mb-1">{{ booking.created_at|date:"d M Y H:i" }}</div>
+                    <div class="font-bold text-lg">{{ booking.start_stop }} → {{ booking.end_stop }}</div>
+                    <div class="text-sm text-gray-500 mt-1">{{ booking.trip.departure_time|date:"D, d M Y H:i" }}</div>
+                    <div class="text-xs text-gray-400 mt-1">Bus: {{ booking.trip.bus.plate_number }} | Seat: {{ booking.seat.seat_number }}</div>
+                </div>
+                <div class="p-5">
+                    <div class="text-xs text-gray-400 mb-1">Reference</div>
+                    <div class="font-mono font-bold text-sm">{{ booking.booking_reference }}</div>
+                    <div class="text-xs text-gray-400 mt-1">{{ booking.phone }}</div>
+                </div>
+                <div class="p-5">
+                    <div class="text-xs text-gray-400 mb-1">Amount</div>
+                    <div class="font-bold text-pr-green text-xl">₦{{ booking.amount_paid|floatformat:0 }}</div>
+                </div>
+                <div class="p-5 flex flex-col gap-2 justify-center items-start sm:items-center">
+                    <span class="status-badge
+                        {% if booking.status == 'confirmed' %}bg-green-100 text-green-700
+                        {% elif booking.status == 'pending' %}bg-yellow-100 text-yellow-700
+                        {% else %}bg-red-100 text-red-700{% endif %}">
+                        {{ booking.get_status_display }}
+                    </span>
+                    {% if booking.status == 'confirmed' %}
+                    <a href="/booking/ticket/{{ booking.booking_reference }}/" class="text-pr-green text-sm font-semibold hover:underline">View Ticket →</a>
+                    {% elif booking.status == 'pending' %}
+                    <a href="/booking/payment/{{ booking.booking_reference }}/" class="text-amber-600 text-sm font-semibold hover:underline">Complete Payment →</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-20">
+        <div class="text-6xl mb-4">🎫</div>
+        <h3 class="font-display text-2xl font-bold mb-3">No Bookings Yet</h3>
+        <p class="text-gray-500 mb-8">You haven't booked any trips yet. Start your journey today!</p>
+        <a href="/search/" class="btn-primary">Book a Trip</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

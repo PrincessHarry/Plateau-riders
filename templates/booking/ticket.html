@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}Your Ticket — {{ booking.booking_reference }}{% endblock %}
+
+{% block content %}
+<!-- Print Controls -->
+<div class="max-w-2xl mx-auto px-4 pt-8 no-print">
+    <div class="flex gap-3 mb-6">
+        <button onclick="window.print()" class="btn-primary">🖨️ Print Ticket</button>
+        <a href="/" class="btn-secondary">← Back to Home</a>
+        <a href="/booking/my-bookings/" class="border border-gray-300 text-gray-700 px-5 py-3 rounded-lg text-sm font-semibold hover:bg-gray-50">My Bookings</a>
+    </div>
+</div>
+
+<!-- Ticket -->
+<div class="max-w-2xl mx-auto px-4 pb-12" id="ticket">
+    <div class="border-2 border-gray-900 rounded-2xl overflow-hidden shadow-2xl">
+        <!-- Header -->
+        <div class="bg-black text-white px-8 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-pr-green rounded-full flex items-center justify-center text-white font-display font-bold text-lg">PR</div>
+                <div>
+                    <div class="font-display font-bold text-xl">Plateau Riders</div>
+                    <div class="text-xs text-green-300">Safe & Reliable Transport</div>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-xs text-gray-400">BOOKING REFERENCE</div>
+                <div class="font-mono font-bold text-yellow-400 text-lg">{{ booking.booking_reference }}</div>
+            </div>
+        </div>
+
+        <!-- Status Banner -->
+        {% if booking.status == 'confirmed' %}
+        <div class="bg-green-600 text-white text-center py-2 text-sm font-semibold">
+            ✅ BOOKING CONFIRMED — VALID TICKET
+        </div>
+        {% elif booking.status == 'pending' %}
+        <div class="bg-yellow-500 text-white text-center py-2 text-sm font-semibold">
+            ⏳ PENDING PAYMENT — NOT YET VALID
+        </div>
+        {% endif %}
+
+        <!-- Main Content -->
+        <div class="p-8 bg-white">
+            <div class="flex gap-6">
+                <!-- Passenger Photo -->
+                <div class="flex-shrink-0">
+                    {% if booking.passenger_photo %}
+                    <img src="{{ booking.passenger_photo.url }}" alt="{{ booking.passenger_name }}"
+                         class="w-28 h-28 object-cover rounded-xl border-4 border-pr-green shadow-md">
+                    {% else %}
+                    <div class="w-28 h-28 rounded-xl border-4 border-gray-300 bg-gray-100 flex items-center justify-center">
+                        <span class="text-4xl">👤</span>
+                    </div>
+                    {% endif %}
+                    <div class="text-center mt-2 text-xs text-gray-500">Seat</div>
+                    <div class="text-center font-bold text-2xl text-pr-green">{{ booking.seat.seat_number }}</div>
+                </div>
+
+                <!-- Passenger Info -->
+                <div class="flex-1">
+                    <h2 class="font-display text-2xl font-bold text-gray-900 mb-4">{{ booking.passenger_name }}</h2>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-400 text-xs uppercase">From</span>
+                            <div class="font-bold text-lg">{{ booking.start_stop }}</div>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 text-xs uppercase">To</span>
+                            <div class="font-bold text-lg">{{ booking.end_stop }}</div>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 text-xs uppercase">Departure</span>
+                            <div class="font-semibold">{{ booking.trip.departure_time|date:"D, d M Y" }}</div>
+                            <div class="font-bold text-pr-green">{{ booking.trip.departure_time|date:"H:i" }}</div>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 text-xs uppercase">Bus</span>
+                            <div class="font-semibold">{{ booking.trip.bus.plate_number }}</div>
+                            <div class="text-gray-400 text-xs">{{ booking.trip.bus.get_bus_type_display }}</div>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 text-xs uppercase">Phone</span>
+                            <div class="font-semibold">{{ booking.phone }}</div>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 text-xs uppercase">Amount Paid</span>
+                            <div class="font-bold text-pr-green">₦{{ booking.amount_paid|floatformat:0 }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="border-t-2 border-dashed border-gray-300 my-6 relative">
+                <div class="absolute -left-9 -top-3 w-6 h-6 bg-black rounded-full"></div>
+                <div class="absolute -right-9 -top-3 w-6 h-6 bg-black rounded-full"></div>
+            </div>
+
+            <!-- Bottom: QR + Barcode Area -->
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-xs text-gray-400 mb-1">Full Route</div>
+                    <div class="font-semibold text-sm">{{ booking.trip.route.origin }} → {{ booking.trip.route.destination }}</div>
+                    <div class="text-xs text-gray-400 mt-2">Booked: {{ booking.created_at|date:"d M Y H:i" }}</div>
+                </div>
+
+                <!-- QR Code placeholder (actual QR generated via JS) -->
+                <div class="text-center">
+                    <div id="qr-code" class="w-24 h-24 border border-gray-300 rounded-lg flex items-center justify-center bg-white"></div>
+                    <div class="text-xs text-gray-400 mt-1">Scan to verify</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-pr-light px-8 py-4 text-center text-xs text-gray-500">
+            Present this ticket at boarding. This ticket is personal and non-transferable. | plateauriders.com
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- QR Code Generator -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const qrData = "{{ booking.booking_reference }}|{{ booking.passenger_name }}|Seat {{ booking.seat.seat_number }}|{{ booking.trip.departure_time|date:'Y-m-d H:i' }}";
+new QRCode(document.getElementById('qr-code'), {
+    text: qrData,
+    width: 96,
+    height: 96,
+    colorDark: '#000000',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+});
+</script>
+<style>
+@media print {
+    .no-print { display: none !important; }
+    #ticket { margin: 0; max-width: 100%; }
+    body { background: white; }
+}
+</style>
+{% endblock %}
