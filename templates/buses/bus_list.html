@@ -15,7 +15,7 @@
         {% for bus in buses %}
         <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
             <div class="flex items-center gap-3 mb-4">
-                <div class="w-12 h-12 bg-black rounded-xl flex items-center justify-center text-2xl">🚌</div>
+                <div class="w-12 h-12 bg-black rounded-xl flex items-center justify-center text-2xl text-pr-green"><i class="fa-solid fa-bus"></i></div>
                 <div>
                     <div class="font-bold text-lg">{{ bus.plate_number }}</div>
                     <div class="text-xs text-gray-500">{{ bus.get_bus_type_display }}</div>
@@ -36,7 +36,7 @@
         </div>
         {% empty %}
         <div class="col-span-3 text-center py-20 text-gray-400">
-            <p class="text-5xl mb-4">🚌</p>
+            <p class="text-5xl mb-4 text-pr-green"><i class="fa-solid fa-bus"></i></p>
             <p>No buses added yet. <a href="/buses/create/" class="text-pr-green hover:underline">Add your first bus</a></p>
         </div>
         {% endfor %}

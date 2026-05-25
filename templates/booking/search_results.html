@@ -63,7 +63,7 @@
                         </div>
                         <div class="flex-1 flex items-center">
                             <div class="h-px bg-gray-300 flex-1"></div>
-                            <div class="mx-2 text-pr-green">🚌</div>
+                            <div class="mx-2 text-pr-green"><i class="fa-solid fa-bus"></i></div>
                             <div class="h-px bg-gray-300 flex-1"></div>
                         </div>
                         <div class="text-right">
@@ -72,7 +72,7 @@
                         </div>
                     </div>
                     <div class="text-sm text-gray-500">
-                        🕐 Departs: <strong>{{ trip.departure_time|date:"D, d M Y H:i" }}</strong>
+                        <i class="fa-solid fa-clock mr-1 text-pr-green"></i>Departs: <strong>{{ trip.departure_time|date:"D, d M Y H:i" }}</strong>
                     </div>
                     <div class="text-xs text-gray-400 mt-1">
                         Full route: {{ trip.route.origin }} → {{ trip.route.destination }}
@@ -117,7 +117,7 @@
 
     {% elif origin and destination %}
     <div class="text-center py-20">
-        <div class="text-6xl mb-6">🚌</div>
+        <div class="text-6xl mb-6 text-pr-green"><i class="fa-solid fa-bus"></i></div>
         <h3 class="font-display text-2xl font-bold text-gray-900 mb-3">No Trips Found</h3>
         <p class="text-gray-500 mb-8">No trips available for <strong>{{ origin }}</strong> → <strong>{{ destination }}</strong> on {{ travel_date }}.</p>
         <p class="text-gray-400 text-sm mb-8">Try a different date or check our available routes.</p>

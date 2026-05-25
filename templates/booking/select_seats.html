@@ -123,7 +123,7 @@
                 <div class="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden">
                     <!-- Bus Top Bar -->
                     <div class="bg-black text-white px-6 py-3 flex items-center justify-between">
-                        <span class="font-bold text-sm">🚌 {{ bus.plate_number }}</span>
+                        <span class="font-bold text-sm"><i class="fa-solid fa-bus text-pr-green mr-2"></i>{{ bus.plate_number }}</span>
                         <span class="text-xs text-gray-400">{{ bus.capacity }} seats total</span>
                     </div>
 
@@ -226,8 +226,9 @@
 
                     <!-- Submit -->
                     <div class="mt-8">
-                        <div id="seat-warning" class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800 mb-4 hidden">
-                            ⚠️ Please select a seat before proceeding.
+                        <div id="seat-warning" class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800 mb-4 hidden flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span>Please select a seat before proceeding.</span>
                         </div>
                         <div class="flex items-center justify-between mb-4 p-4 bg-gray-50 rounded-xl">
                             <span class="text-gray-600">Total Amount</span>
@@ -322,18 +323,50 @@ function closeCamera() {
 }
 
 // Submit validation
-document.getElementById('proceed-btn').addEventListener('click', () => {
+document.getElementById('proceed-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    
     if (!selectedSeatId) {
         document.getElementById('seat-warning').classList.remove('hidden');
         document.querySelector('#seat-map').scrollIntoView({ behavior: 'smooth' });
         return;
     }
-    const name = document.getElementById('id_passenger_name').value.trim();
-    const phone = document.getElementById('id_phone').value.trim();
-    if (!name || !phone) {
-        alert('Please fill in all passenger details.');
+    
+    const nameField = document.querySelector('input[name="passenger_name"]');
+    const phoneField = document.querySelector('input[name="phone"]');
+    const photoField = document.querySelector('input[name="passenger_photo"]');
+    const photoPreview = document.getElementById('photo-preview');
+    
+    const name = nameField ? nameField.value.trim() : '';
+    const phone = phoneField ? phoneField.value.trim() : '';
+    
+    // Check photo: either has file uploaded OR has a preview image with valid src
+    let hasPhoto = false;
+    if (photoField && photoField.files.length > 0) {
+        hasPhoto = true;
+    } else if (photoPreview && photoPreview.src && photoPreview.src.trim() !== '' && !photoPreview.src.includes('undefined')) {
+        hasPhoto = true;
+    }
+    
+    if (!name) {
+        alert('Please enter your full name.');
+        nameField?.focus();
         return;
     }
+    
+    if (!phone) {
+        alert('Please enter your phone number.');
+        phoneField?.focus();
+        return;
+    }
+    
+    if (!hasPhoto) {
+        alert('Please upload or take a passenger photo.');
+        return;
+    }
+    
+    // Ensure seat_id is set before submitting
+    document.getElementById('seat_id_input').value = selectedSeatId;
     document.getElementById('booking-form').submit();
 });
 </script>

@@ -45,6 +45,11 @@ class PassengerDetailsForm(forms.ModelForm):
                 'capture': 'user'
             }),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make passenger_photo required
+        self.fields['passenger_photo'].required = True
 
 class TripForm(forms.ModelForm):
     class Meta:

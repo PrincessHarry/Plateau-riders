@@ -24,6 +24,8 @@
             }
         }
     </script>
+    <link rel="icon" type="image/svg+xml" href="https://api.iconify.design/mdi/truck-delivery.svg?color=%231e7f3b">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -68,8 +70,8 @@
             .no-print { display: none !important; }
             body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
         }
-        .nav-link { color: #e5e7eb; transition: color 0.2s; }
-        .nav-link:hover { color: #4ade80; }
+        .nav-link { color: #145A2A; transition: color 0.2s; }
+        .nav-link:hover { color: #1E7F3B; }
         .status-badge {
             padding: 2px 10px;
             border-radius: 999px;
@@ -82,7 +84,7 @@
 <body class="bg-white text-gray-900">
 
 <!-- Navbar -->
-<nav class="bg-black text-white sticky top-0 z-50 shadow-lg">
+<nav class="bg-white text-gray-900 sticky top-0 z-50 shadow-lg border-b border-gray-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
             <!-- Logo -->
@@ -109,7 +111,7 @@
             </div>
 
             <!-- Mobile menu button -->
-            <button id="mobile-menu-btn" class="md:hidden text-white p-2">
+            <button id="mobile-menu-btn" class="md:hidden text-pr-dark p-2">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
@@ -117,7 +119,7 @@
         </div>
 
         <!-- Mobile Nav -->
-        <div id="mobile-menu" class="hidden md:hidden pb-4 border-t border-gray-700 mt-2 pt-4">
+        <div id="mobile-menu" class="hidden md:hidden pb-4 border-t border-gray-200 mt-2 pt-4">
             <div class="flex flex-col gap-3">
                 <a href="/" class="nav-link text-sm font-medium">Home</a>
                 <a href="/search/" class="nav-link text-sm font-medium">Book Trip</a>
@@ -128,7 +130,7 @@
                     {% if user.is_staff_member %}
                         <a href="/dashboard/" class="nav-link text-sm font-medium">Dashboard</a>
                     {% endif %}
-                    <a href="/accounts/logout/" class="text-red-400 text-sm font-medium">Logout</a>
+                    <a href="/accounts/logout/" class="text-pr-dark text-sm font-medium">Logout</a>
                 {% else %}
                     <a href="/accounts/login/" class="nav-link text-sm font-medium">Login</a>
                     <a href="/accounts/register/" class="btn-primary text-sm text-center">Register</a>
@@ -160,7 +162,7 @@
     <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
         <div>
             <div class="mb-4">
-    <img src="{% static 'img/logo.png' %}" alt="Plateau Riders" class="h-8 w-auto">
+    <img src="{% static 'img/logo_back.png' %}" alt="Plateau Riders" class="h-8 w-auto">
 </div>
             <p class="text-sm text-gray-400">Safe, comfortable, and reliable transport across Nigeria.</p>
         </div>
@@ -183,9 +185,9 @@
         <div>
             <h4 class="text-white font-semibold mb-3">Contact</h4>
             <div class="flex flex-col gap-2 text-sm">
-                <span>📞 +234 800 000 0000</span>
-                <span>✉️ info@plateauriders.com</span>
-                <span>📍 Jos, Plateau State</span>
+                <span class="flex items-center gap-2"><i class="fa-solid fa-phone text-pr-green"></i>+234 800 000 0000</span>
+                <span class="flex items-center gap-2"><i class="fa-solid fa-envelope text-pr-green"></i>info@plateauriders.com</span>
+                <span class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-pr-green"></i>Jos, Plateau State</span>
             </div>
         </div>
     </div>

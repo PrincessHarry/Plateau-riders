@@ -32,11 +32,11 @@
         <!-- Status Banner -->
         {% if booking.status == 'confirmed' %}
         <div class="bg-green-600 text-white text-center py-2 text-sm font-semibold">
-            ✅ BOOKING CONFIRMED — VALID TICKET
+            <i class="fa-solid fa-circle-check mr-2"></i>BOOKING CONFIRMED — VALID TICKET
         </div>
         {% elif booking.status == 'pending' %}
         <div class="bg-yellow-500 text-white text-center py-2 text-sm font-semibold">
-            ⏳ PENDING PAYMENT — NOT YET VALID
+            <i class="fa-solid fa-hourglass-half mr-2"></i>PENDING PAYMENT — NOT YET VALID
         </div>
         {% endif %}
 

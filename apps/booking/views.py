@@ -155,7 +155,14 @@ def confirm_booking(request, trip_id):
 
     form = PassengerDetailsForm(request.POST, request.FILES)
     if not form.is_valid():
-        messages.error(request, 'Please fill in all required fields correctly.')
+        # Log the form errors for debugging
+        error_msg = 'Please fill in all required fields correctly.'
+        if form.errors:
+            # Add details about which fields failed
+            error_details = '; '.join([f"{k}: {', '.join(v)}" for k, v in form.errors.items()])
+            messages.error(request, f'{error_msg} ({error_details})')
+        else:
+            messages.error(request, error_msg)
         return redirect('select_seats', trip_id=trip_id)
 
     booking = form.save(commit=False)

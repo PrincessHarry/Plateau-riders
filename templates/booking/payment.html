@@ -47,20 +47,23 @@
     </div>
 
     <!-- Payment Button -->
-    <button id="pay-btn" class="btn-primary w-full py-5 text-lg mb-4">
-        💳 Pay ₦{{ booking.amount_paid|floatformat:0 }} with Monnify
+    <button id="pay-btn" class="btn-primary w-full py-5 text-lg mb-4 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-credit-card"></i>
+        Pay ₦{{ booking.amount_paid|floatformat:0 }} with Monnify
     </button>
 
-    <div class="text-center text-xs text-gray-400 mb-6">
-        🔒 Your payment is secured by 256-bit SSL encryption
+    <div class="text-center text-xs text-gray-400 mb-6 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-lock"></i>
+        Your payment is secured by 256-bit SSL encryption
         <div class="mt-2">Powered by <strong>Monnify</strong> — Bank transfer, Cards & USSD accepted</div>
     </div>
 
     <!-- Demo confirm (for dev/testing without live Monnify) -->
     <div class="border border-dashed border-gray-300 rounded-xl p-4 text-center">
         <p class="text-xs text-gray-400 mb-3">For testing only (dev mode):</p>
-        <button id="dev-confirm-btn" class="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg text-sm hover:bg-gray-200">
-            ✅ Simulate Successful Payment
+        <button id="dev-confirm-btn" class="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg text-sm hover:bg-gray-200 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-money-bill-wave"></i>
+            Simulate Successful Payment
         </button>
     </div>
 </div>
